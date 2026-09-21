@@ -1,0 +1,31 @@
+# ---------------------------------------------------------------------------
+# Harness runtime state - NEVER COMMIT.
+#
+# dsh-home contains .credentials.yaml, which holds your API key in plain text,
+# plus session transcripts, settings and the isolated browser profile.
+# ---------------------------------------------------------------------------
+dsh-home/
+dsh-workspace/
+
+# Generated icon. Build it locally from your own dsh install:
+#   powershell -ExecutionPolicy Bypass -File .\make-icon.ps1
+# It is deliberately not redistributed here.
+dsh.ico
+*.ico
+
+# Compiled launcher. setup.ps1 builds it from launcher.cs using the .NET
+# Framework C# compiler that ships with Windows.
+dsh-launch.exe
+
+# Runtime state written by start-dsh.ps1
+#   logs\  server output + the launcher's diagnostics (may contain local paths)
+#   run\   the running server's pid file
+logs/
+run/
+
+# Local backups written by setup.ps1
+*.bak*
+
+# OS noise
+Thumbs.db
+desktop.ini
