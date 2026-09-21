@@ -1,6 +1,6 @@
 # DeepSeek Harness · Windows 自包含启动方案
 
-把 DeepSeek Harness 装成一个**双击即用、全程无窗口、自包含**的 Windows 本地应用。
+把 DeepSeek Harness 变成一个**像本地应用一样启动与退出、且完全自包含**的 Windows 程序。
 
 实测环境：Windows 11 · Node.js v24 · Chrome / Edge。
 
@@ -14,14 +14,18 @@
 
 ## 特性
 
-- **双击即用，全程无窗口** —— 从桌面启动后屏幕上不会出现控制台窗口，只出现 harness 界面本身
-- **界面独立于日常浏览器** —— 使用专属浏览器配置与无边框窗口，cookie、历史、任务栏分组都与日常浏览分开，互不干扰
-- **关掉界面即停服** —— 关闭 harness 窗口，后台服务自动停止并退出，不留下残余进程
-- **完全自包含** —— 配置、凭据、会话、日志全部在一个文件夹内；整个文件夹可复制到其他位置或另一台机器直接使用
-- **日志落盘** —— 原本显示在控制台的内容写入 `logs\`，并保留最近 3 轮，便于事后查看
-- **一个图标启动，一个命令停止** —— 正常停止只需关闭窗口；出现异常时双击 `stop-dsh.cmd`
-- **不需要管理员权限** —— 全部安装在用户目录下
-- **自带 PowerShell 7** —— 自动安装便携版并接入 harness，无需手动配置
+方案自带一个**原生启动器**与一名**后台守护进程**：前者响应用户的双击，后者管理 harness
+服务的完整生命周期——启动服务、打开界面、监视窗口、退出时清理。全部运行时状态集中在
+`dsh-home\` 下，整个文件夹因此是自包含的。
+
+- **原生启动** —— 由编译出的启动器响应双击，除 harness 界面外不打开其他窗口
+- **独立的界面窗口** —— harness 使用自己的浏览器配置，cookie、历史、任务栏分组都与日常浏览分开
+- **生命周期自动管理** —— 关闭界面即停止服务并自行退出；每次启动自动清理上一轮残留
+- **随处可用** —— 整个文件夹可复制到任意位置或另一台机器，直接使用
+- **日志可追溯** —— 服务输出写入 `logs\`，保留最近 3 轮
+- **一个图标启动，一个命令停止** —— 正常停止只需关闭窗口；需要时也可用 `stop-dsh.cmd`
+- **免管理员权限** —— 全部安装在用户目录下
+- **托管 PowerShell 7** —— 自动安装便携版并接入 harness
 
 ---
 
@@ -66,7 +70,7 @@
 
 | 文件 | 作用 |
 |---|---|
-| `dsh-launch.exe` | 桌面快捷方式指向它，无控制台的启动器 |
+| `dsh-launch.exe` | 桌面快捷方式指向它，原生启动器 |
 | `launcher.cs` | 上面那个 exe 的源码，改完重跑 `setup.ps1` 即重新编译 |
 | `start-dsh.ps1` | 后台守护进程：启动服务、打开界面、监视窗口、关窗停服 |
 | `setup.ps1` | 一次性安装脚本，幂等 |
@@ -121,8 +125,8 @@
 ## 工作原理
 
 ```
-桌面快捷方式 → dsh-launch.exe        ← 无控制台的启动器，拉起守护进程后立即退出
-  └─ start-dsh.ps1                   ← 后台守护进程，全程不显示窗口
+桌面快捷方式 → dsh-launch.exe        ← 原生启动器，拉起守护进程后立即退出
+  └─ start-dsh.ps1                   ← 后台守护进程，随会话常驻
        ├─ 启动本地服务，输出写入 logs\dsh.log
        ├─ 读取认证地址，用专属浏览器窗口打开
        ├─ 持续监视该窗口
@@ -159,7 +163,7 @@
 
 # DeepSeek Harness · Windows self-contained launcher
 
-Install DeepSeek Harness on Windows as a **double-click-and-go, windowless, self-contained** local app.
+Turn DeepSeek Harness into a Windows program that **starts and stops like a native app, and is fully self-contained**.
 
 Verified on: Windows 11 · Node.js v24 · Chrome / Edge.
 
@@ -171,12 +175,17 @@ Verified on: Windows 11 · Node.js v24 · Chrome / Edge.
 
 ## Features
 
-- **Double-click and go, no window** - starting it from the desktop shows no console window at all, only the harness interface itself
-- **A window of its own, separate from everyday browsing** - a dedicated browser profile and a chromeless window, so cookies, history and taskbar grouping all stay apart from your normal browser
-- **Close the window and the service stops** - the background service shuts down and exits, leaving no stray processes
-- **Fully self-contained** - config, credentials, sessions and logs live in a single folder that can be copied anywhere, or to another machine
-- **Logs on disk** - what a console would have shown is written to `logs\`, keeping the last 3 runs for later inspection
-- **One icon to start, one command to stop** - closing the window is the normal stop; `stop-dsh.cmd` covers the abnormal case
+The solution ships a **native launcher** and a **background supervisor**: the launcher answers the
+double-click, while the supervisor owns the full lifecycle of the harness service - starting it,
+opening the interface, watching the window and cleaning up on exit. All runtime state lives under
+`dsh-home\`, which is what makes the folder self-contained.
+
+- **Native launch** - a compiled launcher answers the double-click; no window other than the harness interface itself is opened
+- **An interface of its own** - the harness uses a dedicated browser profile, so cookies, history and taskbar grouping stay apart from your everyday browsing
+- **Managed lifecycle** - closing the interface stops the service and exits; each start clears whatever the previous run left behind
+- **Portable** - the whole folder can be copied anywhere, or to another machine, and simply runs
+- **Traceable** - service output is written to `logs\`, keeping the last 3 runs
+- **One icon to start, one command to stop** - closing the window is the normal stop; `stop-dsh.cmd` is there when you need it
 - **No administrator rights** - everything installs under your user profile
 - **PowerShell 7 included** - a portable copy is installed and wired into the harness automatically
 
@@ -223,7 +232,7 @@ Verified on: Windows 11 · Node.js v24 · Chrome / Edge.
 
 | File | Purpose |
 |---|---|
-| `dsh-launch.exe` | What the desktop shortcut runs: a console-free launcher |
+| `dsh-launch.exe` | What the desktop shortcut runs: a native launcher |
 | `launcher.cs` | Source of that exe; edit it and re-run `setup.ps1` to rebuild |
 | `start-dsh.ps1` | The background supervisor: starts the service, opens the window, watches it, stops on close |
 | `setup.ps1` | One-time setup, idempotent |
@@ -278,8 +287,8 @@ Verified on: Windows 11 · Node.js v24 · Chrome / Edge.
 ## How it works
 
 ```
-desktop shortcut -> dsh-launch.exe     <- console-free launcher; starts the supervisor and exits
-  └─ start-dsh.ps1                     <- background supervisor, windowless throughout
+desktop shortcut -> dsh-launch.exe     <- native launcher; starts the supervisor and exits
+  └─ start-dsh.ps1                     <- background supervisor, resident for the session
        ├─ starts the local service, output goes to logs\dsh.log
        ├─ reads the authenticated URL and opens it in the dedicated browser window
        ├─ keeps watching that window
