@@ -51,9 +51,9 @@
    powershell -ExecutionPolicy Bypass -File .\setup.ps1
    ```
 
-   它会自动完成：建立目录结构 → 安装便携版 PowerShell 7 → 写入 harness 配置 → 编译启动器 → 创建桌面快捷方式。**可重复运行，不会重复下载。**
+   它会自动完成：建立目录结构 → 安装便携版 PowerShell 7 → 写入 harness 配置 → 编译启动器 → 创建快捷方式。**可重复运行，不会重复下载。**
 
-3. **双击桌面的「DeepSeek Harness」**。
+3. **双击「DeepSeek Harness」快捷方式**。
    首次启动会下载 harness 本体，需要几分钟；之后每次启动都很快。
 
 4. *（可选）* 首次成功启动后，再运行一次：
@@ -62,7 +62,15 @@
    powershell -ExecutionPolicy Bypass -File .\make-icon.ps1
    ```
 
-   生成 DeepSeek 图标并应用到桌面快捷方式。
+   生成 DeepSeek 图标并应用到快捷方式。
+
+> **快捷方式建在哪里？** 默认建在桌面。若希望保持桌面整洁，安装时加一个参数即可建到开始菜单：
+>
+> ```powershell
+> powershell -ExecutionPolicy Bypass -File .\setup.ps1 -ShortcutLocation StartMenu
+> ```
+>
+> 之后它会出现在「开始 → 所有应用」中并可按名字搜索到；想要开始屏幕上的磁贴，在开始菜单里右键它选择"固定到开始"。
 
 ---
 
@@ -213,9 +221,9 @@ opening the interface, watching the window and cleaning up on exit. All runtime 
    powershell -ExecutionPolicy Bypass -File .\setup.ps1
    ```
 
-   It builds the layout, installs portable PowerShell 7, writes the harness config, compiles the launcher and creates the desktop shortcut. **Safe to re-run; it will not download twice.**
+   It builds the layout, installs portable PowerShell 7, writes the harness config, compiles the launcher and creates the shortcut. **Safe to re-run; it will not download twice.**
 
-3. **Double-click "DeepSeek Harness" on your desktop.**
+3. **Double-click the "DeepSeek Harness" shortcut.**
    The first launch downloads the harness and takes a few minutes; later launches are quick.
 
 4. *(Optional)* After the first successful launch, run:
@@ -224,7 +232,17 @@ opening the interface, watching the window and cleaning up on exit. All runtime 
    powershell -ExecutionPolicy Bypass -File .\make-icon.ps1
    ```
 
-   It builds a DeepSeek icon and applies it to the desktop shortcut.
+   It builds a DeepSeek icon and applies it to the shortcut.
+
+> **Where does the shortcut go?** The desktop, by default. To keep the desktop clear, pass a flag
+> during setup and it is created in the Start Menu instead:
+>
+> ```powershell
+> powershell -ExecutionPolicy Bypass -File .\setup.ps1 -ShortcutLocation StartMenu
+> ```
+>
+> It then appears under Start > All apps and is searchable by name; right-click it there and choose
+> "Pin to Start" if you want a Start tile.
 
 ---
 

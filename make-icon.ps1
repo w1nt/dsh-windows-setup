@@ -200,22 +200,32 @@ Write-Ok ("wrote " + $iconPath + " (" + (Get-Item -LiteralPath $iconPath).Length
 $check.Dispose()
 
 # --- 4. shortcut ------------------------------------------------------------
-Write-Step '4/4' 'Point the desktop shortcut at the icon'
+Write-Step '4/4' 'Point the DeepSeek Harness shortcut at the icon'
 
 if ($SkipShortcut) {
     Write-Note 'skipped (-SkipShortcut)'
 }
 else {
-    $lnkPath = Join-Path ([Environment]::GetFolderPath('Desktop')) 'DeepSeek Harness.lnk'
-    if (-not (Test-Path -LiteralPath $lnkPath)) {
-        Write-Note 'no desktop shortcut found; run setup.ps1 first, or set it by hand.'
+    # The shortcut may live on the desktop or in the Start Menu, depending on how
+    # setup.ps1 was invoked, so update whichever of them exist.
+    $candidates = @()
+    $candidates += (Join-Path ([Environment]::GetFolderPath('Desktop')) 'DeepSeek Harness.lnk')
+    $candidates += (Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs\DeepSeek Harness.lnk')
+
+    $shell = New-Object -ComObject WScript.Shell
+    $updated = 0
+    foreach ($lnkPath in $candidates) {
+        if (Test-Path -LiteralPath $lnkPath) {
+            $shortcut = $shell.CreateShortcut($lnkPath)
+            $shortcut.IconLocation = $iconPath + ',0'
+            $shortcut.Save()
+            Write-Ok ("updated " + $lnkPath)
+            $updated++
+        }
     }
-    else {
-        $shell = New-Object -ComObject WScript.Shell
-        $shortcut = $shell.CreateShortcut($lnkPath)
-        $shortcut.IconLocation = $iconPath + ',0'
-        $shortcut.Save()
-        Write-Ok ("updated " + $lnkPath)
+    if ($updated -eq 0) {
+        Write-Note 'no DeepSeek Harness shortcut found on the desktop or in the Start Menu.'
+        Write-Note 'Run setup.ps1 first, or create one by hand.'
     }
 }
 

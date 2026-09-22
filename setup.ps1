@@ -28,8 +28,14 @@ param(
     # Write the layout, patch and shortcut but do not download PowerShell 7.
     [switch] $SkipPowerShell7,
 
-    # Do not create the desktop shortcut.
-    [switch] $SkipShortcut
+    # Do not create the shortcut at all.
+    [switch] $SkipShortcut,
+
+    # Where to put the "DeepSeek Harness" shortcut: Desktop (default) or StartMenu.
+    # StartMenu keeps the desktop clear; the entry then shows up under Start > All
+    # apps and is searchable, ready to be pinned to Start.
+    [ValidateSet('Desktop', 'StartMenu')]
+    [string] $ShortcutLocation = 'Desktop'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -291,8 +297,17 @@ elseif (-not (Test-Path -LiteralPath $launcher)) {
     Write-Warn 'start-dsh.ps1 not found; not creating a shortcut.'
 }
 else {
-    $desktop  = [Environment]::GetFolderPath('Desktop')
-    $lnkPath  = Join-Path $desktop 'DeepSeek Harness.lnk'
+    if ($ShortcutLocation -eq 'StartMenu') {
+        $shortcutDir = Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs'
+        Write-Note 'placing the shortcut in the Start Menu; right-click it there'
+        Write-Note 'and choose "Pin to Start" if you want a Start tile.'
+    }
+    else {
+        $shortcutDir = [Environment]::GetFolderPath('Desktop')
+    }
+    New-Item -ItemType Directory -Force -Path $shortcutDir | Out-Null
+
+    $lnkPath  = Join-Path $shortcutDir 'DeepSeek Harness.lnk'
     $shell    = New-Object -ComObject WScript.Shell
     $shortcut = $shell.CreateShortcut($lnkPath)
 
